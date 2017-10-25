@@ -3,16 +3,14 @@ package com.blazemeter.jmeter.http2.sampler;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import org.apache.jmeter.protocol.http.control.CookieManager;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.util.HTTPConstants;
@@ -34,7 +32,8 @@ public class HTTP2Connection {
 	private String connectionId;
 	private Session session;
 	private boolean isSSL;
-	private HTTP2Client client;
+//	private HTTP2Client client;
+	private OkHttpClient client;
 	private HTTP2SettingsHandler http2SettingsHandler;
 	private SslContextFactory sslContextFactory;
 	private Map<Integer, HTTP2SampleResult> pendingResponses = new HashMap<Integer, HTTP2SampleResult>();
@@ -69,17 +68,23 @@ public class HTTP2Connection {
 	}
 
 	public HTTP2Connection(String connectionId, boolean isSSL) throws Exception {
+//		this.session = null;
+//		this.connectionId = connectionId;
+//		this.isSSL = isSSL;
+//		this.http2SettingsHandler = new HTTP2SettingsHandler(this);
+//		this.client = new HTTP2Client();
+//		this.sslContextFactory = null;
+//		if (this.isSSL) {
+//			this.sslContextFactory = new SslContextFactory(true);
+//		}
+//		this.client.addBean(sslContextFactory);
+//		this.client.start();
+
 		this.session = null;
 		this.connectionId = connectionId;
 		this.isSSL = isSSL;
-		this.http2SettingsHandler = new HTTP2SettingsHandler(this);
-		this.client = new HTTP2Client();
-		this.sslContextFactory = null;
-		if (this.isSSL) {
-			this.sslContextFactory = new SslContextFactory(true);
-		}
-		this.client.addBean(sslContextFactory);
-		this.client.start();
+		this.client=new OkHttpClient.Builder().protocols(Arrays.asList(Protocol.HTTP_2, Protocol.HTTP_1_1)).build();
+
 	}
 
 	public String getConnectionId() {
@@ -87,10 +92,11 @@ public class HTTP2Connection {
 	}
 
 	public void connect(String hostname, int port) throws InterruptedException, ExecutionException, TimeoutException {
-		FuturePromise<Session> sessionFuture = new FuturePromise<>();
-		this.client.connect(this.sslContextFactory, new InetSocketAddress(hostname, port), this.http2SettingsHandler,
-				sessionFuture);
-		setSession(sessionFuture.get(10, TimeUnit.SECONDS));
+		//todo
+		//		FuturePromise<Session> sessionFuture = new FuturePromise<>();
+//		this.client.connect(this.sslContextFactory, new InetSocketAddress(hostname, port), this.http2SettingsHandler,
+//				sessionFuture);
+//		setSession(sessionFuture.get(10, TimeUnit.SECONDS));
 	}
 
 	public boolean isClosed() {
